@@ -1,34 +1,28 @@
-/**
- * Some predefined delay values (in milliseconds).
- */
-export enum Delays {
-  Short = 500,
-  Medium = 2000,
-  Long = 5000,
-}
+import 'dotenv/config'
+import { typo_nerd } from './nerds/index.js'
+import { source_text } from './sample_input_one.js'
+import { inspect } from 'util'
 
-/**
- * Returns a Promise<string> that resolves after a given time.
- *
- * @param {string} name - A name.
- * @param {number=} [delay=Delays.Medium] - A number of milliseconds to delay resolution of the Promise.
- * @returns {Promise<string>}
- */
-function delayedHello(
-  name: string,
-  delay: number = Delays.Medium,
-): Promise<string> {
-  return new Promise((resolve: (value?: string) => void) =>
-    setTimeout(() => resolve(`Hello, ${name}`), delay),
-  );
-}
 
-// Please see the comment in the .eslintrc.json file about the suppressed rule!
-// Below is an example of how to use ESLint errors suppression. You can read more
-// at https://eslint.org/docs/latest/user-guide/configuring/rules#disabling-rules
+console.log("Now fixing typos against the same source text using three different models.")
 
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export async function greeter(name: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
-  // The name parameter should be of type string. Any is used only to trigger the rule.
-  return await delayedHello(name, Delays.Long);
-}
+const openai_typo_nerd = await typo_nerd.with_openai()
+const anthropic_typo_nerd = await typo_nerd.with_anthropic()
+const gemini_typo_nerd = await typo_nerd.with_gemini()
+
+console.log("Running against OpenAI:")
+const openai_output = await openai_typo_nerd.invoke({ input: source_text })
+console.log("OpenAI output:")
+console.log(inspect(openai_output, false, 5, true))
+
+console.log("Running against Anthropic:")
+const anthropic_output = await anthropic_typo_nerd.invoke({ input: source_text })
+console.log("Anthropic output:")
+console.log(inspect(anthropic_output, false, 5, true))
+
+console.log("Running against Gemini:")
+const gemini_output = await gemini_typo_nerd.invoke({ input: source_text })
+console.log("Gemini output:")
+console.log(inspect(gemini_output, false, 5, true))
+
+
