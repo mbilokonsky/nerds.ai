@@ -1,6 +1,7 @@
-import { create_nerd, revision_schema } from "../nerd_builder/index.js"
+import { NerdBuilder, revision_output_specifier } from "../nerd_builder/index.js"
+import { UselessTool } from "../nerd_builder/tools/useless_tool.js"
 
-export const typo_nerd = await create_nerd({
+const typo_nerd_builder: NerdBuilder<typeof revision_output_specifier> = new NerdBuilder({
   name: "typo_nerd",
   purpose: "You are a document editing assistant who proposes corrections to typos and similar small mechanical errors in a given text.",
   do_list: [
@@ -19,6 +20,13 @@ export const typo_nerd = await create_nerd({
     `return empty objects in the output array. If you have found no typos, return an empty array.`,
     `repeat the same proposed edit more than once, or repeat any edits that have already been rejected.`
   ],
-  output_schema: revision_schema,
-  as_tool_description: "This tool proposes corrections to typos and similar small mechanical errors in a given text."
+  output_specifier: revision_output_specifier,
+  as_tool_description: "This tool proposes corrections to typos and similar small mechanical errors in a given text.",
+  tools: [UselessTool]
 })
+
+export const typo_nerds = {
+  with_openai: await typo_nerd_builder.bind_to_gpt(),
+  with_anthropic: await typo_nerd_builder.bind_to_anthropic(),
+  with_gemini: await typo_nerd_builder.bind_to_gemini()
+}
