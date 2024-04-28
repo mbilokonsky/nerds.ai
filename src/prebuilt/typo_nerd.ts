@@ -1,6 +1,6 @@
-import { create_nerd, revision_schema } from "../nerd_builder/index.js"
+import { JSONUnboundNerd, OutputTypes, create_nerd, revision_schema } from "../nerds/index.js"
 
-export const typo_nerd = await create_nerd({
+export const typo_nerd: JSONUnboundNerd<typeof revision_schema> = await create_nerd({
   name: "typo_nerd",
   purpose: "You are a document editing assistant who proposes corrections to typos and similar small mechanical errors in a given text.",
   do_list: [
@@ -19,6 +19,7 @@ export const typo_nerd = await create_nerd({
     `return empty objects in the output array. If you have found no typos, return an empty array.`,
     `repeat the same proposed edit more than once, or repeat any edits that have already been rejected.`
   ],
+  output_format: OutputTypes.JSON,
   output_schema: revision_schema,
   as_tool_description: "This tool proposes corrections to typos and similar small mechanical errors in a given text."
 })

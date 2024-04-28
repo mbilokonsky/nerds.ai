@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { typo_nerd } from './nerds/index.js'
+import { typo_nerd } from './prebuilt/index.js'
 import { source_text } from './sample_input_one.js'
 import { inspect } from 'util'
 

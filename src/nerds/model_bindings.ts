@@ -1,5 +1,5 @@
 import { DynamicStructuredTool, StructuredTool } from "langchain/tools"
-import { BoundNerd, NerdInvocationInput, UnboundNerd } from "./types.js"
+import { BoundNerd, NerdInvocationInput, BaseUnboundNerd, UnboundNerd, NerdOutput } from "./types.js"
 import { BaseChatModel } from "langchain/chat_models/base"
 import { ChatOpenAI } from "@langchain/openai"
 import { ChatAnthropic } from "@langchain/anthropic"
@@ -7,11 +7,11 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai"
 import { AgentExecutor, createToolCallingAgent } from "langchain/agents"
 import { ChatPromptTemplate } from "langchain/prompts"
 import { z } from "zod"
-import { RevisionSchema } from "./output_schemas.js"
+import { RevisionSchema } from "./JSONNerds/output_schemas.js"
 
-export const bind_nerd = async (nerd: UnboundNerd, llm: BaseChatModel): Promise<BoundNerd> => {
+export const bind_nerd = async (nerd: UnboundNerd, llm: BaseChatModel): Promise<BoundNerd<NerdOutput>> => {
   let agent, executor
-  const invocation_input = nerd.prompt_messages
+  const invocation_input = nerd.prompt_template_input
 
   invocation_input.push(["human", "Additional instructions to be followed in addition to everything in the system message: {additional_instructions}"])
   invocation_input.push(["human", `Please perform your assigned duties against the following input:
@@ -103,7 +103,7 @@ export const bind_nerd = async (nerd: UnboundNerd, llm: BaseChatModel): Promise<
   }
 }
 
-export const bind_to_llm = async (nerd: UnboundNerd, llm: BaseChatModel): Promise<BoundNerd> => bind_nerd(nerd, llm)
+export const bind_to_llm = async (nerd: UnboundNerd, llm: BaseChatModel): Promise<BoundNerd<NerdOutput>> => bind_nerd(nerd, llm)
 
 export const bind_to_openai = async (nerd: UnboundNerd, gpt_opts = {
   model: "gpt-4-turbo",
@@ -111,14 +111,14 @@ export const bind_to_openai = async (nerd: UnboundNerd, gpt_opts = {
   response_format: {
     type: "json_object"
   }
-}): Promise<BoundNerd> => await bind_nerd(nerd, new ChatOpenAI(gpt_opts))
+}): Promise<BoundNerd<NerdOutput>> => await bind_nerd(nerd, new ChatOpenAI(gpt_opts))
 
 export const bind_to_anthropic = async (nerd: UnboundNerd, claud_opts = {
   model: "claude-3-opus-20240229",
   temperature: 0
-}): Promise<BoundNerd> => await bind_nerd(nerd, new ChatAnthropic(claud_opts))
+}): Promise<BoundNerd<NerdOutput>> => await bind_nerd(nerd, new ChatAnthropic(claud_opts))
 
 export const bind_to_gemini = async (nerd: UnboundNerd, gemini_opts = {
   model: 'gemini-1.5-pro-latest',
   temperature: 0,
-}): Promise<BoundNerd> => await bind_nerd(nerd, new ChatGoogleGenerativeAI(gemini_opts))
+}): Promise<BoundNerd<NerdOutput>> => await bind_nerd(nerd, new ChatGoogleGenerativeAI(gemini_opts))
