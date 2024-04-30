@@ -1,6 +1,9 @@
-import { AgentType, NerdBuilder, revision_output_specifier } from "../nerd_builder/index.js"
+import { ModelPlatform } from "../nerd_builder/agent_specifiers/index.js"
+import { buildSimpleAgentSpecifier } from "../nerd_builder/agent_specifiers/simple/simple_agent_specifier.js"
+import { NerdBuilder, NerdBinder } from "../nerd_builder/index.js"
+import { ProposedRevisions, revision_output_specifier } from "../nerd_builder/output_specifiers/json/revisions.js"
 
-const typo_nerd_builder: NerdBuilder<typeof revision_output_specifier, AgentType.SimpleAgent> = new NerdBuilder({
+const nerd_opts = {
   name: "TypoNerd",
   purpose: "You are a document editing assistant who proposes corrections to typos and similar small mechanical errors in a given text.",
   do_list: [
@@ -21,12 +24,20 @@ const typo_nerd_builder: NerdBuilder<typeof revision_output_specifier, AgentType
   ],
   output_specifier: revision_output_specifier,
   as_tool_description: "This tool proposes corrections to typos and similar small mechanical errors in a given text.",
-  agent_type: AgentType.SimpleAgent
-})
+}
+
+const output_specifier = revision_output_specifier
+const agent_specifier = buildSimpleAgentSpecifier()
+
+const nerdBuilder = new NerdBuilder<ProposedRevisions>(output_specifier, agent_specifier)
+
+const nerd = nerdBuilder.build(nerd_opts)
+
+const nerdBinder = new NerdBinder<ProposedRevisions>(nerd)
 
 export const TypoNerd = {
-  name: 'TypoNerd',
-  with_openai: await typo_nerd_builder.bind_to_gpt(),
-  with_anthropic: await typo_nerd_builder.bind_to_anthropic(),
-  with_gemini: await typo_nerd_builder.bind_to_gemini()
+  name: nerd_opts.name,
+  with_openai: await nerdBinder.bindToModel(ModelPlatform.OPEN_AI),
+  with_anthropic: await nerdBinder.bindToModel(ModelPlatform.ANTHROPIC),
+  with_gemini: await nerdBinder.bindToModel(ModelPlatform.GEMINI)
 }

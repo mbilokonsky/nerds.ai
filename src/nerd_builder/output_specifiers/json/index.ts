@@ -1,6 +1,6 @@
 import { OutputSpecifier } from "../index.js"
 
-export type JsonSpecifier<T> = OutputSpecifier<T> & {
+export interface JsonSpecifier<T> extends OutputSpecifier<T> {
   output_format: "json"
 }
 

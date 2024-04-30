@@ -1,6 +1,9 @@
-import { AgentType, NerdBuilder, revision_output_specifier } from "../nerd_builder/index.js"
+import { ModelPlatform } from "../nerd_builder/agent_specifiers/index.js"
+import { NerdBuilder, NerdBinder } from "../nerd_builder/index.js"
+import { ProposedRevisions, revision_output_specifier } from "../nerd_builder/output_specifiers/json/revisions.js"
+import { buildSimpleAgentSpecifier } from "../nerd_builder/agent_specifiers/simple/simple_agent_specifier.js"
 
-const accessible_language_nerd_builder: NerdBuilder<typeof revision_output_specifier, AgentType.SimpleAgent> = new NerdBuilder({
+const nerd_opts = {
   name: "AccessibleLanguageNerd",
   purpose: "You are a document editing assistant who proposes revisions to a text that will make it more accessible.",
   do_list: [
@@ -15,14 +18,21 @@ const accessible_language_nerd_builder: NerdBuilder<typeof revision_output_speci
     "propose edits that would make the text less precise",
   ],
   additional_notes: "It's okay if your edit increases verbosity as long as the resulting language is clearer and more accessible.",
-  output_specifier: revision_output_specifier,
   as_tool_description: "This tool proposes revisions that reduce the legibility and accessibility of a given text.",
-  agent_type: AgentType.SimpleAgent
-})
+}
+
+const output_specifier = revision_output_specifier
+const agent_specifier = buildSimpleAgentSpecifier()
+
+const nerdBuilder = new NerdBuilder<ProposedRevisions>(output_specifier, agent_specifier)
+
+const nerd = nerdBuilder.build(nerd_opts)
+
+const nerdBinder = new NerdBinder<ProposedRevisions>(nerd)
 
 export const AccessibleLanguageNerd = {
   name: 'AccessibleLanguageNerd',
-  with_openai: await accessible_language_nerd_builder.bind_to_gpt(),
-  with_anthropic: await accessible_language_nerd_builder.bind_to_anthropic(),
-  with_gemini: await accessible_language_nerd_builder.bind_to_gemini()
+  with_openai: await nerdBinder.bindToModel(ModelPlatform.OPEN_AI),
+  with_anthropic: await nerdBinder.bindToModel(ModelPlatform.ANTHROPIC),
+  with_gemini: await nerdBinder.bindToModel(ModelPlatform.GEMINI)
 }

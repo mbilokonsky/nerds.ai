@@ -1,9 +1,13 @@
+export { buildSimpleAgentSpecifier, SimpleAgentSpecifier } from "./simple/simple_agent_specifier.js"
+export { buildReactAgentSpecifier, ReactAgentSpecifier } from "./tool_calling/react_agent_specifier.js"
+export { buildToolCallingAgentSpecifier, ToolCallingAgentSpecifier } from "./tool_calling/tool_calling_agent_specifier.js"
+
 import { BaseNerd } from "../types.js"
 
 export enum AgentType {
   SimpleAgent = "SimpleAgent",
-  ToolUsingAgent = "ToolUsingAgent",
-  ReActToolUsingAgent = "ReActToolUsingAgent",
+  ToolCallingAgent = "ToolCallingAgent",
+  ReactAgent = "ReactAgent",
 }
 
 export enum ModelPlatform {
@@ -27,13 +31,3 @@ export type AgentSpecifier = {
 }
 
 export type NerdWithAgent = BaseNerd & AgentSpecifier
-
-export class AgentDecorator {
-  constructor(public agent_specifier: AgentSpecifier) { }
-  decorate(nerd: BaseNerd): NerdWithAgent {
-    return {
-      ...nerd,
-      ...this.agent_specifier
-    }
-  }
-}

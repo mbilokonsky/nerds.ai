@@ -2,7 +2,7 @@ import { StructuredTool } from "langchain/tools"
 import { AgentSpecifier, AgentType, ModelType, ModelPlatform } from "../index.js"
 
 export type ReactAgentSpecifier = AgentSpecifier & {
-  agent_type: AgentType.ReActToolUsingAgent,
+  agent_type: AgentType.ReactAgent,
   tools: StructuredTool[],
   allowed_models: [ModelPlatform.OPEN_AI, ModelPlatform.ANTHROPIC],
   preferred_model_type: ModelType.LLM
@@ -26,11 +26,11 @@ Please feel free to use the agent scratchpad to keep track of your thoughts and 
 {agent_scratchpad}
 `
 
-export const buildToolCallingAgentSpecifier = (
+export const buildReactAgentSpecifier = (
   tools: StructuredTool[],
 ): ReactAgentSpecifier => {
   return {
-    agent_type: AgentType.ReActToolUsingAgent,
+    agent_type: AgentType.ReactAgent,
     tools,
     agent_specific_instructions: REACT_INSTRUCTIONS,
     allowed_models: [ModelPlatform.OPEN_AI, ModelPlatform.ANTHROPIC],

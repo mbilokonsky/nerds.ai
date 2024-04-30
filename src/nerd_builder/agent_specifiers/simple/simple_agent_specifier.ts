@@ -6,9 +6,11 @@ export type SimpleAgentSpecifier = AgentSpecifier & {
   preferred_model_type: ModelType.CHAT,
 }
 
-export const simpleAgentSpecifier: SimpleAgentSpecifier = {
-  agent_type: AgentType.SimpleAgent,
-  allowed_models: [ModelPlatform.OPEN_AI, ModelPlatform.ANTHROPIC, ModelPlatform.GEMINI],
-  prompt_patch: "",
-  preferred_model_type: ModelType.CHAT,
+export const buildSimpleAgentSpecifier = (): SimpleAgentSpecifier => {
+  return {
+    agent_type: AgentType.SimpleAgent,
+    allowed_models: [ModelPlatform.OPEN_AI, ModelPlatform.ANTHROPIC, ModelPlatform.GEMINI],
+    prompt_patch: "",
+    preferred_model_type: ModelType.CHAT,
+  }
 }

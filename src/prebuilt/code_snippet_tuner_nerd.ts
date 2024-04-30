@@ -1,6 +1,9 @@
-import { AgentType, NerdBuilder, revision_output_specifier } from "../nerd_builder/index.js"
+import { ModelPlatform } from "../nerd_builder/agent_specifiers/index.js"
+import { buildSimpleAgentSpecifier } from "../nerd_builder/agent_specifiers/simple/simple_agent_specifier.js"
+import { NerdBuilder, NerdBinder } from "../nerd_builder/index.js"
+import { ProposedRevisions, revision_output_specifier } from "../nerd_builder/output_specifiers/json/revisions.js"
 
-const code_snippet_tuner_nerd_builder: NerdBuilder<typeof revision_output_specifier, AgentType.SimpleAgent> = new NerdBuilder({
+const nerd_opts = {
   name: "CodeSnippetTunerNerd",
   purpose: "You are a document editing assistant who edits technical documentation that has code snippets in it. Your job is to identify areas where those snippets could be improved for correctness, idiom and understanding.",
   do_list: [
@@ -18,12 +21,20 @@ const code_snippet_tuner_nerd_builder: NerdBuilder<typeof revision_output_specif
   ],
   additional_notes: "**important** sometimes in technical documentation a code snippet is presented as intentionally incorrect to demonstrate a point. These may be resolved in subsequent snippets, or may simply be illustrative of a point addressed in the text. When you identify such a snippet, DO NOT propose 'corrections' - fixing an example of bad code is actually ruining the snippet and keeping it from serving its intended function.", output_specifier: revision_output_specifier,
   as_tool_description: "This tool proposes revisions that seek to improve the quality of codefenced code-snippets in markdown technical documentation.",
-  agent_type: AgentType.SimpleAgent
-})
+}
+
+const output_specifier = revision_output_specifier
+const agent_specifier = buildSimpleAgentSpecifier()
+
+const nerdBuilder = new NerdBuilder<ProposedRevisions>(output_specifier, agent_specifier)
+
+const nerd = nerdBuilder.build(nerd_opts)
+
+const nerdBinder = new NerdBinder<ProposedRevisions>(nerd)
 
 export const CodeSnippetTunerNerd = {
-  name: 'CodeSnippetTunerNerd',
-  with_openai: await code_snippet_tuner_nerd_builder.bind_to_gpt(),
-  with_anthropic: await code_snippet_tuner_nerd_builder.bind_to_anthropic(),
-  with_gemini: await code_snippet_tuner_nerd_builder.bind_to_gemini()
+  name: nerd_opts.name,
+  with_openai: await nerdBinder.bindToModel(ModelPlatform.OPEN_AI),
+  with_anthropic: await nerdBinder.bindToModel(ModelPlatform.ANTHROPIC),
+  with_gemini: await nerdBinder.bindToModel(ModelPlatform.GEMINI)
 }

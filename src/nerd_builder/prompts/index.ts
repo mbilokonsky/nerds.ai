@@ -1,11 +1,7 @@
-import { PreConfiguredNerd } from "../types.js";
+import { NerdWithPrompt, PreConfiguredNerd } from "../types.js";
 
-export type BindableNerd = PreConfiguredNerd & {
-  prompt: string
-}
-
-export class PromptBuilder {
-  constructor(public nerd: PreConfiguredNerd) {
+export class PromptBuilder<T> {
+  constructor(public nerd: PreConfiguredNerd<T>) {
     this.nerd = nerd
   }
 
@@ -69,7 +65,7 @@ ${this.specify_runtime_instructions()}
 ${this.specify_output_instructions()}`.trim()
   }
 
-  decorate(): BindableNerd {
+  decorate(): NerdWithPrompt<T> {
     return {
       ...this.nerd,
       prompt: this.compile_prompt()
