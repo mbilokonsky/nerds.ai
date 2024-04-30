@@ -51,7 +51,7 @@ ${this.nerd.agent_specific_instructions}
 
   specify_output_instructions(): string {
     return `**Output Instructions**:
-${this.nerd.prompt_output_string}`
+${this.nerd.prompt_output_string.replaceAll("{", "{{").replaceAll("}", "}}")}`
   }
 
   compile_prompt(): string {

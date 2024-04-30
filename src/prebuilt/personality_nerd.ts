@@ -1,4 +1,3 @@
-import { ModelPlatform } from "../nerd_builder/agent_specifiers/index.js"
 import { buildSimpleAgentSpecifier } from "../nerd_builder/agent_specifiers/simple/simple_agent_specifier.js"
 import { NerdBuilder, NerdBinder } from "../nerd_builder/index.js"
 import { ProposedRevisions, revision_output_specifier } from "../nerd_builder/output_specifiers/json/revisions.js"
@@ -30,7 +29,7 @@ const nerdBinder = new NerdBinder<ProposedRevisions>(nerd)
 
 export const PersonalityNerd = {
   name: nerd_opts.name,
-  with_openai: await nerdBinder.bindToModel(ModelPlatform.OPEN_AI),
-  with_anthropic: await nerdBinder.bindToModel(ModelPlatform.ANTHROPIC),
-  with_gemini: await nerdBinder.bindToModel(ModelPlatform.GEMINI)
+  with_openai: await nerdBinder.bindToModel("OPEN_AI"),
+  with_anthropic: await nerdBinder.bindToModel("ANTHROPIC"),
+  with_gemini: await nerdBinder.bindToModel("GEMINI")
 }

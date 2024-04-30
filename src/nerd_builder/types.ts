@@ -2,6 +2,9 @@ import { StructuredTool } from "langchain/tools"
 import { NerdWithOutput } from "./output_specifiers/index.js"
 import { NerdWithAgent } from "./agent_specifiers/index.js"
 
+export type Platform = "OPEN_AI" | "ANTHROPIC" | "GEMINI"
+
+
 export type BaseNerd = {
   name: string
   purpose: string

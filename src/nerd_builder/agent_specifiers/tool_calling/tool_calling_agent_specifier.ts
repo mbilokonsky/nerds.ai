@@ -1,10 +1,9 @@
 import { StructuredTool } from "langchain/tools"
-import { AgentSpecifier, AgentType, ModelType, ModelPlatform } from "../index.js"
+import { AgentSpecifier, AgentType, ModelType } from "../index.js"
 
 export type ToolCallingAgentSpecifier = AgentSpecifier & {
   agent_type: AgentType.ToolCallingAgent,
   tools: StructuredTool[],
-  allowed_models: [ModelPlatform.OPEN_AI, ModelPlatform.ANTHROPIC],
   preferred_model_type: ModelType.CHAT
 }
 
@@ -19,7 +18,7 @@ export const buildToolCallingAgentSpecifier = (
     agent_type: AgentType.ToolCallingAgent,
     tools,
     agent_specific_instructions: prompt_patch,
-    allowed_models: [ModelPlatform.OPEN_AI, ModelPlatform.ANTHROPIC],
+    allowed_platforms: ["OPEN_AI", "ANTHROPIC"],
     preferred_model_type: ModelType.CHAT
   }
 }

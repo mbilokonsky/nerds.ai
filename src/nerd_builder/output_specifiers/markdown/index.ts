@@ -1,6 +1,3 @@
-export { summary_output_specifier } from './summary.js'
-export { code_snippet_output_specifier } from './code_snippets.js'
-
 import { OutputSpecifier } from "../index.js"
 
 export type MarkdownSpecifier = OutputSpecifier<string> & {

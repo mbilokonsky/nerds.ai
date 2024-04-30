@@ -1,8 +1,8 @@
-import { AgentSpecifier, ModelPlatform } from "./agent_specifiers/index.js";
+import { AgentSpecifier } from "./agent_specifiers/index.js";
 import { NerdPlatformBinder } from "./bindings/index.js";
 import { OutputSpecifier } from "./output_specifiers/index.js";
 import { PromptBuilder } from "./prompts/index.js";
-import { BaseNerd, BaseNerdOptions, Nerd, NerdWithPrompt, PreConfiguredNerd } from "./types.js";
+import { BaseNerd, BaseNerdOptions, Nerd, NerdWithPrompt, Platform, PreConfiguredNerd } from "./types.js";
 
 export class NerdBuilder<T> {
   constructor(public output_specifier: OutputSpecifier<T>, public agent_specifier: AgentSpecifier) { }
@@ -27,15 +27,15 @@ export class NerdBuilder<T> {
     return new PromptBuilder(preconfiguredNerd).decorate()
   }
 
-  async bindNerd(nerd: NerdWithPrompt<T>, model: ModelPlatform): Promise<Nerd<T>> {
-    return await new NerdPlatformBinder<T>(nerd).bindToModel(model)
+  async bindNerd(nerd: NerdWithPrompt<T>, platform: Platform): Promise<Nerd<T>> {
+    return await new NerdPlatformBinder<T>(nerd).bindToModel(platform)
   }
 }
 
 export class NerdBinder<T> {
   constructor(public nerd: NerdWithPrompt<T>) { }
 
-  async bindToModel(model: ModelPlatform): Promise<Nerd<T>> {
-    return await new NerdPlatformBinder<T>(this.nerd).bindToModel(model)
+  async bindToModel(platform: Platform): Promise<Nerd<T>> {
+    return await new NerdPlatformBinder<T>(this.nerd).bindToModel(platform)
   }
 }

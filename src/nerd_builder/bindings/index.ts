@@ -1,12 +1,12 @@
 import { Runnable } from "langchain/runnables"
-import { AgentType, ModelPlatform, ModelType } from "../agent_specifiers/index.js"
+import { AgentType, ModelType } from "../agent_specifiers/index.js"
 import { ChatOpenAI, OpenAI } from "@langchain/openai"
 import { ChatAnthropic } from "@langchain/anthropic"
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai"
 import { ChatPromptTemplate } from "langchain/prompts"
 import { DynamicStructuredTool, StructuredTool } from "langchain/tools"
 import { z } from "zod"
-import { Nerd, NerdWithPrompt } from "../types.js"
+import { Nerd, NerdWithPrompt, Platform } from "../types.js"
 import { AgentExecutor, createReactAgent, createToolCallingAgent } from "langchain/agents"
 
 
@@ -49,27 +49,27 @@ export class NerdParsingError extends Error {
 export class NerdPlatformBinder<OutputType = string> {
   prompt: ChatPromptTemplate
   constructor(public nerd: NerdWithPrompt<OutputType>) {
-    this.prompt = ChatPromptTemplate.fromMessages([this.nerd.prompt, human_input_placeholder])
+    this.prompt = ChatPromptTemplate.fromMessages([["system", this.nerd.prompt], ["human", human_input_placeholder]])
   }
 
-  getChatModel(platform: ModelPlatform, opts = null): Runnable {
-    if (this.nerd.allowed_models.indexOf(platform) === -1) {
+  getChatModel(platform: Platform, opts = null): Runnable {
+    if (this.nerd.allowed_platforms.indexOf(platform) === -1) {
       throw new Error(`Model platform ${platform} not allowed for this agent`)
     }
 
-    if (platform === ModelPlatform.OPEN_AI) {
+    if (platform === "OPEN_AI") {
       const openai_opts = opts || this.nerd.output_format == "json" ? default_json_gpt_opts : default_gpt_opts
       return this.nerd.preferred_model_type === ModelType.LLM ? new OpenAI(opts) : new ChatOpenAI(openai_opts)
     }
 
-    if (platform === ModelPlatform.ANTHROPIC) {
+    if (platform === "ANTHROPIC") {
       if (this.nerd.preferred_model_type === ModelType.LLM) {
         console.warn("Anthropic does not support the LLM model type, defaulting to their Chat model.")
       }
-      new ChatAnthropic(opts || default_claude_opts)
+      return new ChatAnthropic(opts || default_claude_opts)
     }
 
-    if (platform === ModelPlatform.GEMINI) {
+    if (platform === "GEMINI") {
       if (this.nerd.preferred_model_type === ModelType.LLM) {
         console.warn("Anthropic does not support the LLM model type, defaulting to their Chat model.")
       }
@@ -92,7 +92,7 @@ export class NerdPlatformBinder<OutputType = string> {
     })
   }
 
-  async construct_executor(llm): Promise<Runnable> {
+  async construct_runner(llm): Promise<Runnable> {
     if (this.nerd.agent_type === AgentType.SimpleAgent) {
       return llm
     }
@@ -114,8 +114,8 @@ export class NerdPlatformBinder<OutputType = string> {
     throw new Error(`Agent type ${this.nerd.agent_type} not supported`)
   }
 
-  bindToModel(platform: ModelPlatform): Nerd<OutputType> {
-    const llm = this.getChatModel(platform)
+  bindToModel(platform: Platform, platformOpts = null): Nerd<OutputType> {
+    const llm = this.getChatModel(platform, platformOpts)
 
     const invoke = async (input: string, runtime_instructions: string): Promise<OutputType> => {
       const text = await invoke_raw(input, runtime_instructions)
@@ -150,12 +150,15 @@ export class NerdPlatformBinder<OutputType = string> {
     }
 
     const invoke_raw = async (input: string, runtime_instructions: string): Promise<string> => {
-      const executor = await this.construct_executor(llm);
+      const executor = await this.construct_runner(llm);
       const opts = {}
-      if (platform === ModelPlatform.GEMINI && this.nerd.output_format === "json") {
+      if (platform === "GEMINI" && this.nerd.output_format === "json") {
         opts['generationConfig'] = { response_mime_type: "application/json" }
       }
-      const output = await executor.invoke({ input, runtime_instructions }, opts)
+
+
+      const prompt = (this.nerd.agent_type === AgentType.SimpleAgent) ? await this.prompt.invoke({ input, runtime_instructions }) : this.prompt
+      const output = await executor.invoke(prompt, opts)
 
       return output.content as string
     }

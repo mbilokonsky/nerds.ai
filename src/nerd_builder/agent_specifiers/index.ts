@@ -2,18 +2,12 @@ export { buildSimpleAgentSpecifier, SimpleAgentSpecifier } from "./simple/simple
 export { buildReactAgentSpecifier, ReactAgentSpecifier } from "./tool_calling/react_agent_specifier.js"
 export { buildToolCallingAgentSpecifier, ToolCallingAgentSpecifier } from "./tool_calling/tool_calling_agent_specifier.js"
 
-import { BaseNerd } from "../types.js"
+import { BaseNerd, Platform } from "../types.js"
 
 export enum AgentType {
   SimpleAgent = "SimpleAgent",
   ToolCallingAgent = "ToolCallingAgent",
   ReactAgent = "ReactAgent",
-}
-
-export enum ModelPlatform {
-  OPEN_AI,
-  ANTHROPIC,
-  GEMINI
 }
 
 export enum ModelType {
@@ -27,7 +21,7 @@ export type AgentSpecifier = {
   agent_type: AgentType,
   agent_specific_instructions?: string,
   preferred_model_type: ModelType,
-  allowed_models: ModelPlatform[]
+  allowed_platforms: Platform[],
 }
 
 export type NerdWithAgent = BaseNerd & AgentSpecifier

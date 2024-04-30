@@ -29,7 +29,7 @@ const process_file_with_nerds = async (filename, nerd_name, additional_instructi
   let gpt_output;
   let formatted_gpt_output = "[pending]"
   try {
-    gpt_output = await invoke_gpt({ input: text, additional_instructions })
+    gpt_output = await invoke_gpt(text, additional_instructions)
     formatted_gpt_output = inspect(gpt_output, false, 5)
   } catch (e) {
     formatted_gpt_output = `[Error running GPT: ${e}]`
@@ -41,7 +41,7 @@ const process_file_with_nerds = async (filename, nerd_name, additional_instructi
   let anthropic_output
   let formatted_anthropic_output = "[pending]"
   try {
-    anthropic_output = await invoke_anthropic({ input: text, additional_instructions })
+    anthropic_output = await invoke_anthropic(text, additional_instructions)
     formatted_anthropic_output = inspect(anthropic_output, false, 5)
   } catch (e) {
     formatted_anthropic_output = `[Error running Anthropic: ${e}]`
@@ -54,7 +54,7 @@ const process_file_with_nerds = async (filename, nerd_name, additional_instructi
   let gemini_output
   let formatted_gemini_output = "[pending]"
   try {
-    gemini_output = await invoke_gemini({ input: text, additional_instructions })
+    gemini_output = await invoke_gemini(text, additional_instructions)
     formatted_gemini_output = inspect(gemini_output, false, 5)
   } catch (e) {
     formatted_gemini_output = `[Error running Gemini: ${e}]`
