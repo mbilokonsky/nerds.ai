@@ -1,8 +1,8 @@
 import { inspect } from "util"
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "fs"
 
-export const run_against_egghead_files = async (nerd, additional_instructions = "") => {
-  const directory = readdirSync('./sources').filter(str => str.endsWith('.md'))
+export const run_against_egghead_files = async ({ directory_path, output_path }, nerd, additional_instructions = "") => {
+  const directory = readdirSync('./directory_path').filter(str => str.endsWith('.md'))
   const outputs = []
   const output_directory = `./script_output/${nerd.name}/${Date.now()}`
   mkdirSync(output_directory, { recursive: true })
