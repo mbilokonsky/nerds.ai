@@ -31,7 +31,11 @@
     "lint": "eslint . --ext .ts --ext .mts",
     "test": "jest --coverage",
     "prettier": "prettier --config .prettierrc --write .",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "demo:typo": "node scripts/run_typo_nerd.mjs",
+    "demo:accessible": "node scripts/run_accessible_language_nerd.mjs",
+    "demo:personality": "node scripts/run_personality_nerd.mjs",
+    "demo:code_snippets": "node scripts/run_code_snippet_tuner_nerd.mjs"
   },
   "author": "Jakub Synowiec <jsynowiec@users.noreply.github.com>",
   "license": "Apache-2.0",

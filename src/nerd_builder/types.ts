@@ -1,54 +1,82 @@
 import { AnthropicInput, ChatAnthropic } from "@langchain/anthropic"
 import { BaseMessagePromptTemplateLike } from "@langchain/core/prompts"
-import { ChatGoogleGenerativeAI, GoogleGenerativeAIChatInput } from "@langchain/google-genai"
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai"
 import { AgentExecutor } from "langchain/agents"
 import { BaseLanguageModelParams } from "langchain/base_language"
-import { BaseChatModel, BaseChatModelParams } from "langchain/chat_models/base"
+import { BaseChatModelParams } from "langchain/chat_models/base"
 import { AzureOpenAIInput, ChatOpenAI, OpenAIChatInput } from "langchain/chat_models/openai"
 import { ChatPromptTemplate } from "langchain/prompts"
 import { RunnableSequence } from "langchain/runnables"
 import { InputValues } from "langchain/schema"
 import { StructuredTool } from "langchain/tools"
-import { OutputSpecifier } from "./output_formatter.js"
+import { NerdWithOutput, OutputSpecifier } from "./output_specifiers/index.js"
+import { AgentType, NerdWithAgent } from "./agent_specifiers/index.js"
 
-export type NerdOptions<O extends OutputSpecifier> = {
+export type Options<O extends OutputSpecifier> = SimpleNerdOptions<O> | ToolUsingNerdOptions<O> | ReActToolUsingNerdOptions<O>
+export type Nerd<O extends OutputSpecifier> = UnboundSimpleNerd<O> | UnboundToolUsingNerd<O> | UnboundReActToolUsingNerd<O>
+
+export type PreConfiguredNerd = NerdWithAgent & NerdWithOutput
+
+export type BaseNerd = {
+  name: string
+  purpose: string
+  do_list: string[]
+  do_not_list: string[]
+  as_tool_description: string
+  additional_notes?: string
+}
+
+export type BaseNerdOptions<O extends OutputSpecifier, A extends AgentType> = {
   name: string
   purpose: string
   do_list: string[]
   do_not_list: string[]
   output_specifier: O,
   as_tool_description: string
-  tools: StructuredTool[]
   additional_notes?: string
+  agent_type: A
 }
 
-export type UnboundNerd<O extends OutputSpecifier> = {
+export type SimpleNerdOptions<O extends OutputSpecifier> = BaseNerdOptions<O, AgentType.SimpleAgent>
+
+export type ToolUsingNerdOptions<O extends OutputSpecifier> = BaseNerdOptions<O, AgentType.ToolUsingAgent> & {
+  tools: StructuredTool[]
+}
+
+export type ReActToolUsingNerdOptions<O extends OutputSpecifier> = BaseNerdOptions<O, AgentType.ReActToolUsingAgent> & {
+  tools: StructuredTool[]
+}
+
+export type BaseUnboundNerd<O extends OutputSpecifier, A extends AgentType> = {
   name: string,
   system_message: string,
   prompt_messages: (ChatPromptTemplate<InputValues, string> | BaseMessagePromptTemplateLike)[]
-  tools: StructuredTool[]
-  is_agent: boolean
   as_tool_description: string
   output_specifier: O
-  config: NerdOptions<O>
+  agent_type: A
 }
+
+export type UnboundSimpleNerd<O extends OutputSpecifier> = BaseUnboundNerd<O, AgentType.SimpleAgent> & {
+  config: SimpleNerdOptions<O>
+}
+
+export type UnboundToolUsingNerd<O extends OutputSpecifier> = BaseUnboundNerd<O, AgentType.ToolUsingAgent> & {
+  tools: StructuredTool[]
+  config: ToolUsingNerdOptions<O>
+}
+
+export type UnboundReActToolUsingNerd<O extends OutputSpecifier> = BaseUnboundNerd<O, AgentType.ReActToolUsingAgent> & {
+  tools: StructuredTool[]
+  config: ReActToolUsingNerdOptions<O>
+}
+
+
 
 export type OpenAIParams = Partial<OpenAIChatInput> & Partial<AzureOpenAIInput> & BaseLanguageModelParams
 export type AnthropicParams = Partial<AnthropicInput> & BaseChatModelParams
 
-export type OpenAIBinder<O extends OutputSpecifier> = (gpt_opts?: OpenAIParams) => Promise<BoundNerd<O>>
-export type AnthropicBinder<O extends OutputSpecifier> = (anthropic_opts?: AnthropicParams) => Promise<BoundNerd<O>>
-export type GeminiBinder<O extends OutputSpecifier> = (gemini_opts?: GoogleGenerativeAIChatInput) => Promise<BoundNerd<O>>
-
-export type BindableNerd<O extends OutputSpecifier> = UnboundNerd<O> & {
-  bind: (llm: BaseChatModel) => Promise<BoundNerd<O>>
-  with_openai: OpenAIBinder<O>
-  with_anthropic: AnthropicBinder<O>
-  with_gemini: GeminiBinder<O>
-}
-
-export type BoundNerd<O extends OutputSpecifier> = {
-  invoke: (invocation_input: NerdInvocationInput) => Promise<UnboundNerd<O>>
+export type BoundNerd<O extends OutputSpecifier, A extends AgentType> = {
+  invoke: (invocation_input: NerdInvocationInput) => Promise<BaseUnboundNerd<O, A>>
   as_tool: StructuredTool,
   as_agent: RunnableSequence,
   as_executor: AgentExecutor,

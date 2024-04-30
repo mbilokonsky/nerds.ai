@@ -1,8 +1,7 @@
-import { NerdBuilder, revision_output_specifier } from "../nerd_builder/index.js"
-import { UselessTool } from "../nerd_builder/tools/useless_tool.js"
+import { AgentType, NerdBuilder, revision_output_specifier } from "../nerd_builder/index.js"
 
-const typo_nerd_builder: NerdBuilder<typeof revision_output_specifier> = new NerdBuilder({
-  name: "typo_nerd",
+const typo_nerd_builder: NerdBuilder<typeof revision_output_specifier, AgentType.SimpleAgent> = new NerdBuilder({
+  name: "TypoNerd",
   purpose: "You are a document editing assistant who proposes corrections to typos and similar small mechanical errors in a given text.",
   do_list: [
     "seek to identify mispellings",
@@ -22,10 +21,11 @@ const typo_nerd_builder: NerdBuilder<typeof revision_output_specifier> = new Ner
   ],
   output_specifier: revision_output_specifier,
   as_tool_description: "This tool proposes corrections to typos and similar small mechanical errors in a given text.",
-  tools: [UselessTool]
+  agent_type: AgentType.SimpleAgent
 })
 
-export const typo_nerds = {
+export const TypoNerd = {
+  name: 'TypoNerd',
   with_openai: await typo_nerd_builder.bind_to_gpt(),
   with_anthropic: await typo_nerd_builder.bind_to_anthropic(),
   with_gemini: await typo_nerd_builder.bind_to_gemini()
