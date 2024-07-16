@@ -7,6 +7,7 @@ sources/1*
 sources/_*
 scripts/egghead
 scripts/dewart
+sources/total_typescript.json
 demos
 !demos/.gitkeep
 
