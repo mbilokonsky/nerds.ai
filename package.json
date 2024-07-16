@@ -1,6 +1,6 @@
 {
   "name": "nerds-ai",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "A toolkit for defining LLM-agnostic tool-using tools (nerds) for specailized tasks",
   "type": "module",
   "author": "Mykola Bilokonsky <mbilokonsky@users.noreply.github.com>",
@@ -9,7 +9,7 @@
   "types": "build/src/main.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/badass-courses/nerds-ai/"
+    "url": "https://github.com/mbilokonsky/nerdssai/"
   },
   "engines": {
     "node": ">= 20.9 < 23"
