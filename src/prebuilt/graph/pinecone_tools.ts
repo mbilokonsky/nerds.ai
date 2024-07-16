@@ -239,7 +239,46 @@ RETURN source.name`;
 
     }
 
-    super(mapConceptToCanon, writeGraphData, list_labels, get_existing_relationships_for_source, get_existing_concepts_for_source)
+    const lookup = async (concept: string): Promise<string[]> => {
+      const query = `MATCH (n {name: "${concept}"})-[e]-() RETURN e.summary as summary, e.source as source`
+      const session = driver.session()
+      try {
+        const result = await session.run(query)
+        await session.close()
+        return result.records.map((record) => `${record.get('summary')} [source_id: ${record.get('source')}]`)
+      } catch (e) {
+        console.error("Error looking up concept in Neo4J")
+        console.dir(e)
+        throw e
+      }
+    }
+
+    const isolate_required_concepts = async (input: string): Promise<string[]> => {
+      // we're going to just pass the entire input into a query into the vector store and see what concepts come out.
+      // we'll return up to 10 concepts.
+      const embedded_input = await embeddings.embedDocuments([input])
+      const query = {
+        vector: embedded_input[0],
+        topK: 10
+      }
+
+      const result = await this.concept_index.query(query)
+      return result.matches.map((record) => record.id)
+    }
+
+    const do_rag = async (input: string): Promise<string[]> => {
+      const concepts = await isolate_required_concepts(input)
+      const output = []
+      for (const concept of concepts) {
+        console.log(`Grabbing graph for concept: ${concept}`)
+        const data = await lookup(concept)
+        output.push(`Concept: ${concept}\n${data.join("\n")}\n\n`)
+      }
+
+      return output
+    }
+
+    super(mapConceptToCanon, writeGraphData, list_labels, get_existing_relationships_for_source, get_existing_concepts_for_source, lookup, do_rag)
     this.concept_index = pinecone.index("concepts")
   }
 

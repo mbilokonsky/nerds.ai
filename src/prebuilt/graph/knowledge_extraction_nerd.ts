@@ -3,6 +3,7 @@ import { BaseNerdOptions } from "../../internals/types.js";
 import { Edge, GraphData, GraphGuidance, GraphNerd, GraphResult, KnowledgeGraphInput } from "./index.js";
 import { z } from 'zod';
 
+
 const default_nerd_config: BaseNerdOptions = {
   name: "Knowledge Extractor Nerd",
   purpose: "Your task is to parse a given text and extract a set of concepts and the relationships between them. You will then feed these into a Graph API, and return the generated vertices and edges.",
@@ -63,19 +64,25 @@ export class KnowledgeGraphTools {
   list_labels: () => Promise<ExistingLabels>
   get_existing_relationships_for_source: (source_id) => Promise<Edge[]>
   get_existing_concepts_for_source: (source_id) => Promise<Concept[]>
+  lookup: (concept: string) => Promise<string[]>
+  do_rag: (input: string) => Promise<string[]>
 
   constructor(
     concept_canonizer: (concepts: ConceptToolInput) => Promise<Array<CanonicalConceptMapping>>,
     graph_writer: (data: GraphData) => Promise<string>,
     list_labels: () => Promise<ExistingLabels>,
     get_existing_relationships_for_source: (source_id) => Promise<Edge[]>,
-    get_existing_concepts_for_source: (source_id) => Promise<Concept[]>
+    get_existing_concepts_for_source: (source_id) => Promise<Concept[]>,
+    lookup: (concept: string) => Promise<string[]>,
+    do_rag: (input: string) => Promise<string[]>
   ) {
     this.concept_canonizer = concept_canonizer
     this.graph_writer = graph_writer
     this.list_labels = list_labels
     this.get_existing_relationships_for_source = get_existing_relationships_for_source
     this.get_existing_concepts_for_source = get_existing_concepts_for_source
+    this.lookup = lookup
+    this.do_rag = do_rag
   }
 
   concept_canonizer_tool = (): StructuredTool => new DynamicStructuredTool({
