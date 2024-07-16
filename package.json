@@ -9,7 +9,7 @@
   "types": "build/src/main.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mbilokonsky/nerdssai/"
+    "url": "https://github.com/mbilokonsky/nerds.ai/"
   },
   "engines": {
     "node": ">= 20.9 < 23"
