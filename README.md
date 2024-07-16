@@ -111,10 +111,10 @@ For examples, take a look at how the prebuilt nerds are defined in [./src/prebui
 If we want a JSON nerd that returns typed output, we need to give the nerd definition a JSON output parser. You can see how we do this in our `revision` and `findings` nerd definitions linked above, but I'll embed an example here for reference. This is mostly handled by creating a typescript type that extends `NerdOutput` and an accompanying string describing to the LLM how to structure its response. The `findings` nerds linked above both use this approach - they're just instantiating the `FindingsNerd` class with different parameters.
 
 ```typescript
-import { Nerd } from "../../nerd.js"
-import { BaseNerdOptions } from "../../internals/types.js"
-import { NerdOutput } from "../../internals/parsers/index.js"
-import { JsonNerdOutputParser } from "../../internals/parsers/json/index.js"
+import { Nerd } from '../../nerd.js';
+import { BaseNerdOptions } from '../../internals/types.js';
+import { NerdOutput } from '../../internals/parsers/index.js';
+import { JsonNerdOutputParser } from '../../internals/parsers/json/index.js';
 
 const schema = `{
   // the "thought_log" array is for tracking your own thoughts as you carry out your task.
@@ -124,17 +124,18 @@ const schema = `{
 
   // Your task is to identify some set of findings. Please return them here as individual strings.
   "findings": string[]
-}`
+}`;
 
 export type Findings = NerdOutput & {
-  findings: string[]
-}
+  findings: string[];
+};
 
-export const findings_parser: JsonNerdOutputParser<Findings> = new JsonNerdOutputParser<Findings>(schema)
+export const findings_parser: JsonNerdOutputParser<Findings> =
+  new JsonNerdOutputParser<Findings>(schema);
 
 export class FindingsNerd extends Nerd<Findings> {
   constructor(nerd_opts: BaseNerdOptions) {
-    super(nerd_opts, findings_parser)
+    super(nerd_opts, findings_parser);
   }
 }
 ```
@@ -207,12 +208,14 @@ Not all LLMs support tool use, but that's okay! If you bind a nerd to an LLM tha
 I've got a lot of things I'd like to add to this project, here is a general list:
 
 - [ ] Add chat memory and conversational context to the nerds so they're not just one-and-done if you don't want them to be.
-- [ ] Building on the ConceptExtraction model with vector-store based canonical concepts, I want to build a graph data extractor. The idea would be to extract a graph of concepts from a given text, and then use that graph to build a structured JSON object that represents the relationships between those concepts and persist it in something like Nebula. This graph can then be used via a RAG flow to feed into other nerds.
+- [x] Building on the ConceptExtraction model with vector-store based canonical concepts, I want to build a graph data extractor. The idea would be to extract a graph of concepts from a given text, and then use that graph to build a structured JSON object that represents the relationships between those concepts and persist it in something like Nebula. This graph can then be used via a RAG flow to feed into other nerds.
 - [ ] Create a `DynamicToolNerd` which is designed to allow users to implement tools with specific signatures at runtime. This way we could e.g. implement a ConceptStore nerd that has its own bespoke database accessors that e.g. perform I/O against a dynamically defined pinecone index and also allow writes to a separate K/V store that actually tracks concepts, etc.
 - [ ] LangChain exposes an experimental AutoGPT feature. I haven't dug too deeply into this yet, but I think that I can swing this in a way that would allow me to build an "AutoNerd" that has access to the full suite of nerds as well as the capacity implement entirely new nerds as it runs. This could then become the "Digital Gardener" we've talked about, constantly running against the entire suite of content and proposing revisions constantly over time without needing to be invoked directly.
 - [x] Add input pre-processors so that nerds can do things like insert line-number annotations and other things to their input prior to running them.
 - [x] Make `agent_specifier` completely internal. In practice every decision it makes should be able to be automated based on e.g. whether or not the nerd is using tools, and which platform we're running against.
 - [x] Ensure that our nerds can execute tools even against LLMs that don't natively support tool use, by falling back to the ReAct agent flow. This works!!
+- [x] add full typing for both nerd input and output.
+- [ ] update the "as_tool" behavior to support input types. Right now it's sidestepping it by invoking the raw (post-string converted) flow, but there are nerds where this will break the intended flow.
 
 ## Prebuilt Nerds
 
