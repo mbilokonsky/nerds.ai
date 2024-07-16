@@ -1,6 +1,6 @@
 import { MarkdownNerd } from "../markdown/index.js"
 
-
+// TODO - this is meant to be used with the RAG flow specific to the Graph nerd, but maybe this should live in the `markdown` nerds folder anyway?
 const nerd_opts = {
   name: "SummaryCruncher",
   purpose: "You are part of a RAG flow. Your prompt will include some user input, and a set of statements that were extracted from a graph database paired with a vector store to try to identify salient details. Your job is NOT to address the user input, but to take the set of statements and compress them into a single referenceable summary that a subsequent LLM call may draw from in order to address the user input.",

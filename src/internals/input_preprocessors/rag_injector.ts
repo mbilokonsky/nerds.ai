@@ -1,6 +1,8 @@
 import { KnowledgeGraphTools } from "../../main.js";
 import { NerdInputPreprocessor } from "../types.js";
 
+// TODO - finish this and integrate it with the RAG flow
+
 export const build_rag_injector = (tools: KnowledgeGraphTools): NerdInputPreprocessor => {
 
   return async (input: string): Promise<string> => {

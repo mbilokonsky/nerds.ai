@@ -58,6 +58,7 @@ export type ExistingLabels = {
   edge_labels: string[]
 }
 
+// TODO - this design has evolved considerably. At this point this should just be an interface, with various implementations in the `hybrid_vector_graph` folder.
 export class KnowledgeGraphTools {
   concept_canonizer: (concepts: ConceptToolInput) => Promise<Array<CanonicalConceptMapping>>
   graph_writer: (data: GraphData) => Promise<string>

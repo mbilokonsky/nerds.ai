@@ -1,6 +1,8 @@
 import { Edge, GraphData } from "../index.js"
 import { CanonicalConceptMapping, Concept, ConceptToolInput, ExistingLabels } from "../knowledge_extraction_nerd.js"
 
+// TODO - finish this and migrate stuff from ../pinecone_tools.ts into a new file in this folder.
+
 export type HybridVectorGraph = {
   get_vector_matches: (input: string) => Promise<string[]>
   get_batch_vector_matches: (input: string[]) => Promise<string[][]>

@@ -140,12 +140,12 @@ export class FindingsNerd extends Nerd<Findings> {
 }
 ```
 
-#### BaseNerd<T>
+#### BaseNerd<I, O>
 
 At its core a nerd is an object that defines what the LLM does and how. This is mostly used to implement the system message, and contains a few parameterizable things.
 
 ```typescript
-export type BaseNerd<T extends NerdOutput> = {
+export type BaseNerd<I extends NerdInput, O extends NerdOutput> = {
   // the name of the nerd
   name: string;
 
@@ -170,7 +170,7 @@ export type BaseNerd<T extends NerdOutput> = {
   tools?: StructuredToolInterface[];
 
   // The output parser is primarily used to convert the string output of the LLM into a structured object of a given type.
-  parser: NerdOutputParser<T>;
+  parser: NerdOutputParser<O>;
 };
 ```
 
@@ -179,12 +179,12 @@ export type BaseNerd<T extends NerdOutput> = {
 Once you have a BaseNerd you can bind it to an LLM. If you're using the `Nerd` class (`const nerd = new Nerd(params)`), you can invoke `await nerd.bindToModel(model)` to get a `BoundNerd` which you can execute. The `model` argument in this case can either be the name of a supported model (like `gpt-4o`) or an instance of the NerdModel interface.
 
 ```typescript
-type BoundNerd<T extends NerdOutput> = {
+type BoundNerd<I extends NerdInput, O extends NerdOutput> = {
   // this is a reference to the underlying BaseNerd object
   nerd: BaseNerd<T>;
 
   // this method will return a structured object of the type specified in the BaseNerd object
-  invoke: (input: string, runtime_instructions: string) => Promise<T>;
+  invoke: (input: I, runtime_instructions: string) => Promise<O>;
 
   // this method will return a raw string output from the LLM. When using a nerd as a tool it's necessary to pass a string back into the invoking flow,
   // so this method gives us a way to do that.
@@ -227,8 +227,11 @@ There are currently two JSON output types defined. Both return an object with a 
 
 - `Findings` - A Findings nerd is really straightforward. It simply returns an array of strings that represent the findings of the nerd. This is useful to prepare concise input to other nerds, for instance.
 - `Revisions` - A Revisions nerd is a bit more ambitious. Given some text input, it returns a list of proposed revisions to that text. The idea is that a user can then accept/reject those revisions via some user interface, seamlessly mutating the text.
+- `Graph` - The graph nerd flow is used to extract semantically meaningfully nodes and edges from source text. It's a complex flow that relies on a vector store and a graph store to back it. It returns output in the form of nodes and edges, and then in its `output_postprocessor` method it persists this output to a vector store as an index and the graph store as a graph. We use this hybrid approach because the vector store can be queried for similarity to identify which graph nodes and edges to pull down as salient.
 
 I've got a number of different kinds of prebuilt nerds that implement these two basic types, and as you can see it's hopefully pretty straightforward to define new ones. The examples you'll find below are all defined in [./scripts/simple](./scripts/simple/) and you can run them yourself if you have the appropriate environment variables defined and can supply text input. Note that we are generating inputs only against OpenAI, but all tools except wiki and content extraction are available for Anthropic and Google as well. The tool-using nerds (wiki and context) require a tool-using LLM, and currently Gemini doesn't support that so they won't work with Gemini, but work fine with Anthropic as well as OpenAI.
+
+Below are example outputs from `Findings` and `Revisions` nerds. The Graph nerd performs amazingly, actually, but it was run against some proprietary inputs that I can't share here. I'll run them against something public sooon.
 
 ### Prebuilt Revision Nerd: AccessibleLanguageNerd
 
