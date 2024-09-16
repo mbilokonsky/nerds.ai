@@ -4,6 +4,8 @@ import { BaseLanguageModelParams } from "langchain/base_language"
 import { AzureOpenAIInput, ChatOpenAI, OpenAI, OpenAIChatInput, OpenAIInput } from "@langchain/openai"
 import { BaseModel } from "../base_model.js"
 
+export type GPT_o1_PREVIEW = "o1-preview"
+export type GPT_o1_MINI = "o1-mini"
 export type GPT_4o_MODEL = "gpt-4o" | "gpt-4o-2024-05-13"
 export type GPT_4_TURBO_MODEL = "gpt-4-turbo" | "gpt-4-turbo-2024-04-09"
 export type GPT_4_MODEL = "gpt-4-0125-preview" | "gpt-4-1106-preview" | "gpt-4-vision-preview" | "gpt-4" | "gpt-4-0613"
@@ -12,7 +14,7 @@ export type GPT_35_MODEL = "gpt-3.5-turbo" | "gpt-3.5-turbo-0125" | "gpt-3.5-tur
 export type GPT_35_16K_MODEL = "gpt-3.5-turbo-16k" | "gpt-3.5-turbo-16k-0613"
 export type GPT_35_TURBO_INSTRUCT_MODEL = "gpt-3.5-turbo-instruct"
 
-export type OPENAI_MODEL = GPT_4o_MODEL | GPT_4_TURBO_MODEL | GPT_4_MODEL | GPT_4_32K_MODEL | GPT_35_MODEL | GPT_35_16K_MODEL | GPT_35_TURBO_INSTRUCT_MODEL
+export type OPENAI_MODEL = GPT_o1_PREVIEW | GPT_o1_MINI | GPT_4o_MODEL | GPT_4_TURBO_MODEL | GPT_4_MODEL | GPT_4_32K_MODEL | GPT_35_MODEL | GPT_35_16K_MODEL | GPT_35_TURBO_INSTRUCT_MODEL
 
 type OPENAI_LLM_OPTIONS = Partial<OpenAIInput> & Partial<AzureOpenAIInput> & BaseLLMParams
 type OPENAI_CHAT_OPTIONS = Partial<OpenAIChatInput> & Partial<AzureOpenAIInput> & BaseLanguageModelParams
@@ -104,6 +106,12 @@ export class OpenAIChatModel extends BaseModel {
     super(name, "OPEN_AI", new ChatOpenAI(opts))
 
     switch (name) {
+      case "o1-preview":
+      case "o1-mini":
+        this.token_limit = GPT_4o_CONTEXT_SIZE
+        this.cutoff = new Date(GPT_4o_CUTOFF)
+        this.cost = GPT_4o_PRICING;
+        break;
       case "gpt-4o":
       case "gpt-4o-2024-05-13":
         this.token_limit = GPT_4o_CONTEXT_SIZE
@@ -152,6 +160,8 @@ export class OpenAIChatModel extends BaseModel {
 
 
 export const OPEN_AI_MODELS_BY_NAME: Record<OPENAI_MODEL, OpenAIChatModel | OpenAILLMModel> = {
+  "o1-preview": new OpenAIChatModel("o1-preview"),
+  "o1-mini": new OpenAIChatModel("o1-mini"),
   "gpt-4o": new OpenAIChatModel("gpt-4o"),
   "gpt-4o-2024-05-13": new OpenAIChatModel("gpt-4o-2024-05-13"),
   "gpt-4-turbo": new OpenAIChatModel("gpt-4-turbo"),
